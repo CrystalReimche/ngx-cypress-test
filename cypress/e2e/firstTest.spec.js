@@ -252,20 +252,40 @@ describe('Our first suite', () => {
 
      // #region MODIFIED DATEPICKER
     it.only('assert property', () => {
+
+        function selectDateFromCurrent(day){
+            // getting current system date and time
+            let date = new Date()
+            // adding 60 days from current date
+            date.setDate(date.getDate() + day)
+            // setting date to variable
+            let futureDate = date.getDate()
+            //let futureMonth = date.getMonth()   // returns the number of the month (ie: 1, 4, 12) 
+            let futureMonth = date.toLocaleString('default', {month: 'short'})  // but we need short name (ie: Jan, Apr, Dec)
+            // concatenating string for assertion
+            let dateAssert = futureMonth + ' ' + futureDate + ', ' + date.getFullYear() 
+            
+            cy.get('nb-calendar-navigation').invoke('attr', 'ng-reflect-date').then(dateAttribute => {
+                // if the future month isn't the current month
+                if(!dateAttribute.includes(futureMonth)){
+                    // click on the arrow to go to the next month
+                    cy.get('[data-name="chevron-right"]').click()
+                    // check again to see if future month is in the calendar that's being displayed
+                    selectDateFromCurrent(day)
+                }
+                else {
+                    // if the future month is within the current month, select that date
+                    cy.get('nb-calendar-day-picker [class="day-cell ng-star-inserted"]').contains(futureDate).click()
+                }
+            })
+
+            // return concatenated string for assertion
+            return dateAssert
+        }
+
         cy.visit('/')
         cy.contains('Forms').click()
         cy.contains('Datepicker').click()
-
-        // getting current system date and time
-        let date = new Date()
-        // adding 2 days from current date
-        date.setDate(date.getDate() + 5)
-
-        let futureDate = date.getDate()
-        //let futureMonth = date.getMonth()   // returns the number of the month (ie: 1, 4, 12) 
-        let futureMonth = date.toLocaleString('default', {month: 'short'})  // but we need short name (ie: Jan, Apr, Dec)
-
-        // <nb-calendar-navigation _ngcontent-jje-c22="" _nghost-jje-c24="" ng-reflect-date="Mon Aug 28 2023 13:51:12 GMT-0"><button _ngcontent-jje-c24="" nbbutton="" _nghost-jje-c16="" class="appearance-filled size-medium status-primary shape-rectangle transitions" aria-disabled="false" tabindex="0"> Aug 2023 </button></nb-calendar-navigation>     
 
         // going to the div that holds the datepicker to test
         cy.contains('nb-card', 'Common Datepicker')
@@ -275,19 +295,11 @@ describe('Our first suite', () => {
                 // so we have to wrap it first
                 cy.wrap(input).click()
 
-                cy.get('nb-calendar-navigation').invoke('attr', 'ng-reflect-date').then(dateAttribute => {
-                    if(!dateAttribute.includes(futureMonth)){
-                        cy.get('[data-name="chevron-right"]').click()
-                        cy.get('nb-calendar-day-picker [class="day-cell ng-star-inserted"]').contains(futureDate).click()
-                    }
-                    else {
-                        cy.get('nb-calendar-day-picker [class="day-cell ng-star-inserted"]').contains(futureDate).click()
-                    }
-                })
+                // calling method and assigning concatenated string for assertion
+                let dateAssert = selectDateFromCurrent(60)
                 
                 // with input being wrapped, invoke can be used to find the property: value
-                //cy.wrap(input).invoke('prop', 'value')
-                    //.should('contain', 'Aug 6, 2023')
+                cy.wrap(input).invoke('prop', 'value').should('contain', dateAssert)
             })
     
     })
