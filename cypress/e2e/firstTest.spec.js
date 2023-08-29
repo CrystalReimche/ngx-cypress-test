@@ -250,8 +250,8 @@ describe('Our first suite', () => {
     })
     // #endregion
 
-     // #region MODIFIED DATEPICKER
-    it.only('assert property', () => {
+    // #region MODIFIED DATEPICKER
+    it('modified datepicker', () => {
 
         function selectDateFromCurrent(day){
             // getting current system date and time
@@ -304,4 +304,43 @@ describe('Our first suite', () => {
     
     })
     // #endregion
+
+    // #region LISTS AND DROPDOWNS
+    it.only('lists and dropdowns', () => {
+        cy.visit('/')
+
+        // save all items from the dropdown list into a variable (dropdown)
+        cy.get('nav nb-select').then (dropdown => {
+            // click on the dropdown to show all the items
+            cy.wrap(dropdown).click()
+            // find where the items are located on the DOM, then do a foreach loop
+            cy.get('.options-list nb-option').each((dropdownItem, index) => {
+                // storing each text value to a variable (ie: Light, Dark, Cosmic, Corporate)
+                const dropdownItemText = dropdownItem.text().trim()
+
+                // creating JSON object to store RGB colors for dropdown colorsS
+                const colors = {
+                    "Light": "rgb(255, 255, 255)",
+                    "Dark": "rgb(34, 43, 69)",
+                    "Cosmic": "rgb(50, 50, 89)",
+                    "Corporate": "rgb(255, 255, 255)"
+                }
+
+                // this will click on the dropdown option
+                cy.wrap(dropdownItem).click()
+                // checks that the dropdown input field should contain that text that was clicked
+                cy.wrap(dropdown).should('contain', dropdownItemText)
+                // checks that the background is the correct by using the the JSON key:value pair
+                cy.get('nb-layout-header nav').should('have.css', 'background-color', colors[dropdownItemText])
+
+                // we do not want the test to click on the dropdown menu again if it has gone through all the color options
+                if (index < 3) {
+                    // click on the dropdown again to show all the items because the menu closes once a color is selected
+                    cy.wrap(dropdown).click()
+                }
+            })
+        })
+    })
+    // #endregion
+
 })
