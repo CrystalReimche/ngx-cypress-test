@@ -278,7 +278,6 @@ describe('Our first suite', () => {
                     cy.get('nb-calendar-day-picker [class="day-cell ng-star-inserted"]').contains(futureDate).click()
                 }
             })
-
             // return concatenated string for assertion
             return dateAssert
         }
@@ -301,12 +300,11 @@ describe('Our first suite', () => {
                 // with input being wrapped, invoke can be used to find the property: value
                 cy.wrap(input).invoke('prop', 'value').should('contain', dateAssert)
             })
-    
     })
     // #endregion
 
     // #region LISTS AND DROPDOWNS
-    it.only('lists and dropdowns', () => {
+    it('lists and dropdowns', () => {
         cy.visit('/')
 
         // save all items from the dropdown list into a variable (dropdown)
@@ -337,6 +335,57 @@ describe('Our first suite', () => {
                 if (index < 3) {
                     // click on the dropdown again to show all the items because the menu closes once a color is selected
                     cy.wrap(dropdown).click()
+                }
+            })
+        })
+    })
+    // #endregion
+
+    // #region WEB TABLES
+    it.only('web tables', () => {
+        cy.visit('/')
+        cy.contains('Tables & Data').click()
+        cy.contains('Smart Table').click()
+
+        // ****** EDIT CELL ******
+        // within the tbody element, find the table row that contains the text 'Larry'
+        // store the data from that row into variable tableRow
+        cy.get('tbody').contains('tr', 'Larry').then(tableRow => {
+            // find the pencil icon with the calss nb-edit and click on it
+            cy.wrap(tableRow).find('.nb-edit').click()
+            // find the input field that has a placeholder of Age, clear the existing value, and type in the value 25
+            cy.wrap(tableRow).find('[placeholder="Age"]').clear().type('25')
+            // find the checkmark icon with the calss nb-checkmark and click on it to save changes
+            cy.wrap(tableRow).find('.nb-checkmark').click()
+            // since no unique identifier for the value 25, can use column index (zero based)
+            cy.wrap(tableRow).find('td').eq(6).should('contain', '25')
+        })
+
+        // ****** ADD NEW ROW VALUES ******
+        cy.get('thead').find('.nb-plus').click()
+        cy.get('thead').find('tr').eq(2).then (tableRow => {
+            cy.wrap(tableRow).find('[placeholder="First Name"]').type('Crystal')
+            cy.wrap(tableRow).find('[placeholder="Last Name"]').type('Reimche')
+            cy.wrap(tableRow).find('.nb-checkmark').click()
+        })
+        cy.get('tbody tr').first().find('td').then(tableColumns => {
+            cy.wrap(tableColumns).eq(2).should('contain', 'Crystal')
+            cy.wrap(tableColumns).eq(3).should('contain', 'Reimche')
+        })
+
+        // ****** CHECK SEARCHING ******
+        const age = [20, 30, 40, 200]
+
+        cy.wrap(age).each(age => {
+            cy.get('thead').find('[placeholder="Age"]').clear().type(age)
+            // when filtering, there's a slight delay but Cypress goes so fast, it was throwing an error
+            cy.wait(500)
+            cy.get('tbody > tr').each(tableRow => {
+                if(age == 200) {
+                    cy.wrap(tableRow).should('contain', 'No data found')
+                }
+                else {
+                    cy.wrap(tableRow).find('td').eq(6).should('contain', age)
                 }
             })
         })
