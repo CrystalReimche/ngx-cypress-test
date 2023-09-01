@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+const exp = require("constants")
+
 // TO START THE LOCALHOST, RUN NPM START IN POWERSHELL TERMINAL
 // TO START CYPRESS, RUN NPX CYPRESS OPEN IN POWERSHELL TERMINAL
 // NAVIGATE TO http://localhost:4200/pages
@@ -138,7 +140,10 @@ describe('Our first suite', () => {
         cy.contains('Form Layouts').click()
 
         // #1
-        cy.get('[for="exampleInputEmail1"]').should('contain', 'Email address')
+        cy.get('[for="exampleInputEmail1"]')
+            .should('contain', 'Email address')
+            .should('have.class', 'label')
+            .and('have.text', 'Email address')
         
         // #2
         // get the label of get('[for="exampleInputEmail1"]')
@@ -146,6 +151,8 @@ describe('Our first suite', () => {
         // then checked the label text to see if it matches 'Email address'
         cy.get('[for="exampleInputEmail1"]').then(label => {
             expect(label.text()).to.equal('Email address')
+            expect(label).to.have.class('label')
+            expect(label).to.have.text('Email address')
         })
 
         // #3
@@ -251,7 +258,7 @@ describe('Our first suite', () => {
     // #endregion
 
     // #region MODIFIED DATEPICKER
-    it('modified datepicker', () => {
+    it.only('modified datepicker', () => {
 
         function selectDateFromCurrent(day){
             // getting current system date and time
@@ -299,6 +306,7 @@ describe('Our first suite', () => {
                 
                 // with input being wrapped, invoke can be used to find the property: value
                 cy.wrap(input).invoke('prop', 'value').should('contain', dateAssert)
+                cy.wrap(input).should('have.value', dateAssert)
             })
     })
     // #endregion
@@ -405,7 +413,7 @@ describe('Our first suite', () => {
     // #endregion
 
     // #region BROWSWER POPUP WINDOWS (ALERTS / CONFRIMS)
-    it.only('browser popup window', () => {
+    it('browser popup window', () => {
         cy.visit('/')
         cy.contains('Tables & Data').click()
         cy.contains('Smart Table').click()
