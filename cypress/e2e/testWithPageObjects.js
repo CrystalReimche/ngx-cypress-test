@@ -7,7 +7,10 @@ describe('Test with Page Objects', () => {
 
     // before every test, this will run
     beforeEach('open application', () => {
-        cy.visit('/')
+        // a custom command (openHomePage) was created in the commands.js file.
+        // Works great to store login information as well
+        // https://docs.cypress.io/api/cypress-api/custom-commands
+        cy.openHomePage()
     })
 
     it('verify naviagations across the pages', () => {
