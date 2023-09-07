@@ -21,7 +21,7 @@ describe('Test with Page Objects', () => {
         navigateTo.tooltipPage()
     });
 
-    it('should submit Inline form, Basic form, and select tomorrow date in the calendar', () => {
+    it('should submit Inline form, Basic form, and select future date(s) in the calendar', () => {
         navigateTo.formLayoutsPage()
         onFormLayoutsPage.submitInlineFormWithNameAndEmail('Ragnar', 'pupper@woof.go')
         onFormLayoutsPage.submitBasicFormWithEmailAndPassword('pupper@woof.go', 'password')
